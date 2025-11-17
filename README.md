@@ -13,6 +13,17 @@ A lightweight helper to create and use directory “bookmarks” via `bookmark` 
 source ~/.bashrc
 ```
 
+### macOS (zsh)
+
+1. Copy the zsh `bookmark` function and `alias bm='bookmark'` into `~/.zshrc`.
+2. Reload your shell:
+
+```zsh
+source ~/.zshrc
+```
+
+> If you use Bash on macOS, follow the Linux (Bash) instructions instead.
+
 ### Windows (PowerShell)
 
 1. Open your PowerShell profile:
