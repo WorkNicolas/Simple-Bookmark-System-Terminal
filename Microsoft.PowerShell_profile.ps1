@@ -21,9 +21,12 @@ function bookmark {
             $parts = $line -split '\|', 2
             if ($parts[0]) { $titles += $parts[0] }
         }
+
         if ($titles.Count -gt 0) {
-            Write-Output ($titles -join ' ')
+            # one title per line, like the Bash/zsh versions
+            $titles | ForEach-Object { Write-Output $_ }
         }
+
         return
     }
 
@@ -52,7 +55,13 @@ function bookmark {
             $newLines += "$title|$path"
         }
 
-        $newLines | Set-Content $Global:BookmarkFile
+        # Rewrite file (or clear if no lines left)
+        if ($newLines.Count -gt 0) {
+            $newLines | Set-Content $Global:BookmarkFile
+        } else {
+            # keep file existing but empty
+            '' | Set-Content $Global:BookmarkFile
+        }
 
         if ($found) {
             Write-Host "[SUCCESS] - $name removed"
@@ -73,7 +82,8 @@ function bookmark {
 
     # If Arg1 is a directory path, create a bookmark
     if (Test-Path -LiteralPath $path -PathType Container) {
-        $fullPath = (Resolve-Path -LiteralPath $path).Path
+        # Use fully-qualified Resolve-Path to ignore aliases/wrapper functions
+        $fullPath = (Microsoft.PowerShell.Management\Resolve-Path -LiteralPath $path).Path
 
         while ($true) {
             Write-Host -NoNewLine "[Bookmark Title]: "
@@ -134,7 +144,8 @@ function bookmark {
         return
     }
 
-    Set-Location -LiteralPath $dest
+    # Use fully-qualified Set-Location (like builtin cd)
+    Microsoft.PowerShell.Management\Set-Location -LiteralPath $dest
 }
 
 Set-Alias bm bookmark
