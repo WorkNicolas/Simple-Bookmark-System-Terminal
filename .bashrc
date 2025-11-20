@@ -11,7 +11,8 @@ bookmark() {
     while IFS='|' read -r t d; do
       [[ -n "$t" ]] && titles+=("$t")
     done < "$BOOKMARK_FILE"
-    [[ ${#titles[@]} -gt 0 ]] && printf '%s\n' "${titles[*]}"
+    # print each title on its own line
+    [[ ${#titles[@]} -gt 0 ]] && printf '%s\n' "${titles[@]}"
     return
   fi
 
@@ -52,7 +53,14 @@ bookmark() {
 
   # if arg is an existing directory -> create bookmark for that directory
   if [[ -d "$path" ]]; then
-    path="$(cd "$path" && pwd)"
+    # Use builtin cd in a subshell so we don't capture any custom cd/ls output
+    path="$(
+      builtin cd -- "$path" 2>/dev/null || exit 1
+      pwd
+    )" || {
+      echo "[ERROR] - could not resolve directory: $path"
+      return 1
+    }
 
     while :; do
       printf "[Bookmark Title]: "
